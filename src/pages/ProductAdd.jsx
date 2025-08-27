@@ -8,6 +8,9 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import { Chip } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useState, useEffect } from "react";
 import { addProduct } from "../utils/api_products";
 import { toast } from "sonner";
@@ -19,6 +22,7 @@ const ProductAdd = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
   const [category, setCategory] = useState("");
+  const [image, setImage] = useState(null);
 
   const handleFormSubmit = async (event) => {
     // 1. check for error
@@ -36,6 +40,18 @@ const ProductAdd = () => {
       toast.error(error.message);
     }
   };
+
+  const VisuallyHiddenInput = styled("input")({
+    clip: "rect(0 0 0 0)",
+    clipPath: "inset(50%)",
+    height: 1,
+    overflow: "hidden",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    whiteSpace: "nowrap",
+    width: 1,
+  });
 
   return (
     <>
@@ -97,6 +113,7 @@ const ProductAdd = () => {
             </Select>
           </FormControl>
         </Box>
+        
         <Box mb={2}>
           <Button
             variant="contained"

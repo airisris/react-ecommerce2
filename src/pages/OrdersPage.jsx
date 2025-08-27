@@ -17,11 +17,12 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { Typography } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 
 const OrdersPage = () => {
   // store orders data from API
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // call the API
   useEffect(() => {
@@ -46,17 +47,16 @@ const OrdersPage = () => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        // remove product from cart
         await deleteOrder(id);
+        //method 1
         const updatedOrders = await getOrders();
-        // update the cart data in local storage and the state
         setOrders(updatedOrders);
+        // method 2
+        // setOrders(orders.filter((i) => i._id !== id));
         toast.success("Order has been removed");
       }
     });
   };
-
-  console.log(orders);
 
   return (
     <>
@@ -67,21 +67,11 @@ const OrdersPage = () => {
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: "bold" }}>Customer</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Products
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Total Amount
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Status
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Payment Date
-                </TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>
-                  Action
-                </TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Products</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Total Amount</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Payment Date</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -90,7 +80,7 @@ const OrdersPage = () => {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
-                    No Order Added Yet!
+                    No Order Found!
                   </TableCell>
                 </TableRow>
               ) : (
@@ -105,37 +95,46 @@ const OrdersPage = () => {
                     </TableCell>
                     <TableCell>
                       {o.products.map((p) => (
-                        <Typography>{p.name}</Typography>
+                        <div>{p.name}</div>
                       ))}
                     </TableCell>
-                    <TableCell>{o.totalPrice}</TableCell>
+                    <TableCell>{o.totalPrice.toFixed(2)}</TableCell>
                     <TableCell>
-                      <FormControl fullWidth>
-                        <InputLabel id="demo-simple-select-label">
-                          Status
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          defaultValue={o.status}
-                          label="Status"
-                          onChange={async (event) => {
-                            await updateOrder(o._id, event.target.value);
-                            const updatedOrders = await getOrders();
-                            setOrders(updatedOrders);
-                          }}
-                          disabled={o.status === "pending" ? true : false}
-                        >
-                          <MenuItem value="pending" disabled>Pending</MenuItem>
-                          <MenuItem value="paid">Paid</MenuItem>
-                          <MenuItem value="failed">Failed</MenuItem>
-                          <MenuItem value="completed">Completed</MenuItem>
-                        </Select>
-                      </FormControl>
+                      {loading ? (
+                        <CircularProgress color="inherit" />
+                      ) : (
+                        <FormControl fullWidth>
+                          <InputLabel id="demo-simple-select-label">
+                            Status
+                          </InputLabel>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={o.status}
+                            label="Status"
+                            onChange={async (event) => {
+                              setLoading(true);
+                              await updateOrder(o._id, event.target.value);
+                              const updatedOrders = await getOrders();
+                              setOrders(updatedOrders);
+                              toast.info("Status has been updated");
+                              setLoading(false);
+                            }}
+                            disabled={o.status === "pending"}
+                          >
+                            <MenuItem value="pending" disabled>
+                              Pending
+                            </MenuItem>
+                            <MenuItem value="paid">Paid</MenuItem>
+                            <MenuItem value="failed">Failed</MenuItem>
+                            <MenuItem value="completed">Completed</MenuItem>
+                          </Select>
+                        </FormControl>
+                      )}
                     </TableCell>
                     <TableCell>{o.paid_at}</TableCell>
                     <TableCell>
-                      {o.status === "pending" ? (
+                      {o.status === "pending" && (
                         <Button
                           variant="outlined"
                           color="error"
@@ -145,7 +144,7 @@ const OrdersPage = () => {
                         >
                           Delete
                         </Button>
-                      ) : null}
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
