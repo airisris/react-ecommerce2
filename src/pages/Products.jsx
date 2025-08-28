@@ -18,6 +18,8 @@ import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import CardMedia from "@mui/material/CardMedia";
+import { API_URL } from "../utils/constants";
 
 export default function Products() {
   const navigate = useNavigate();
@@ -152,6 +154,16 @@ export default function Products() {
             {products.map((product) => (
               <Grid size={{ xs: 12, sm: 12, md: 6, lg: 4 }} key={product._id}>
                 <Card sx={{ minWidth: 275, p: "20px" }}>
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={
+                      API_URL +
+                      (product.image
+                        ? product.image
+                        : "uploads/default-image.jpg")
+                    }
+                  />
                   <CardContent sx={{ m: 0, p: 0 }}>
                     <Typography component="div" sx={{ fontWeight: "bold" }}>
                       {product.name}
