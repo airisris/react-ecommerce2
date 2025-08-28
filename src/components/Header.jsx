@@ -50,6 +50,13 @@ const Header = (props) => {
           >
             My Orders
           </Button>
+          <Button
+            component={Link}
+            to="/categories"
+            variant={current === "categories" ? "contained" : "outlined"}
+          >
+            Categories
+          </Button>
         </Box>
       </Box>
     </>

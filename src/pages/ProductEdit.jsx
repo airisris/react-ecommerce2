@@ -15,7 +15,6 @@ import { useNavigate, useParams } from "react-router";
 import { Link } from "react-router";
 import { styled } from "@mui/material/styles";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { addProduct } from "../utils/api_products";
 import { uploadImage } from "../utils/api_image";
 import { API_URL } from "../utils/constants";
 
