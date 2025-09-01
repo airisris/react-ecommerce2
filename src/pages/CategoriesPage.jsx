@@ -19,10 +19,16 @@ import {
 } from "../utils/api_category";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
+import { Category } from "@mui/icons-material";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
 
 const CategoriesPage = () => {
   const [categories, setCategories] = useState("");
   const [label, setLabel] = useState("");
+  const [open, setOpen] = useState(false);
+  const [selectedCatID, setSelectedCatID] = useState("");
+  const [selectedCatLabel, setSelectedCatLabel] = useState("");
 
   // call the API
   useEffect(() => {
@@ -44,16 +50,19 @@ const CategoriesPage = () => {
     try {
       // trigger the API to create new category
       await createCategory(label);
+      // get latest categories
       const updatedCategories = await getCategories();
       setCategories(updatedCategories);
+      // clear the label
+      setLabel("");
       toast.success("New category has been added");
     } catch (error) {
       toast.error(error.message);
     }
   };
 
-  const handleCategoryEdit = async (id) => {
-    const label = prompt("Enter the new label");
+  const handleCategoryEdit = async (c) => {
+    const label = prompt("Enter the new label", c.label);
 
     if (!label) {
       toast.error("Please fill up the label");
@@ -61,14 +70,26 @@ const CategoriesPage = () => {
     }
 
     try {
-      // trigger the API to create new category
-      await updateCategory(id, label);
+      // trigger the API to edit category
+      await updateCategory(c._id, label);
       const updatedCategories = await getCategories();
       setCategories(updatedCategories);
       toast.info("Category has been updated");
     } catch (error) {
       toast.error(error.message);
     }
+  };
+
+  const handleUpdate = async () => {
+    // update category
+    await updateCategory(selectedCatID, selectedCatLabel);
+    // get the latest categories again
+    const newCategories = await getCategories();
+    // update the categories state
+    setCategories(newCategories);
+    // close the model
+    setOpen(false);
+    toast.info("Category has been updated");
   };
 
   const handleCategoryDelete = async (id) => {
@@ -156,8 +177,14 @@ const CategoriesPage = () => {
                       <Button
                         variant="contained"
                         color="primary"
+                        // onClick={() => {
+                        //   handleCategoryEdit(c);
+                        // }}
                         onClick={() => {
-                          handleCategoryEdit(c._id);
+                          setOpen(true);
+                          // pass in the id and label
+                          setSelectedCatID(c._id);
+                          setSelectedCatLabel(c.label);
                         }}
                       >
                         Edit
@@ -178,6 +205,55 @@ const CategoriesPage = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <Modal open={open} onClose={() => setOpen(false)}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "background.paper",
+              border: "2px solid #000",
+              boxShadow: 24,
+              p: 4,
+            }}
+          >
+            <TextField
+              fullWidth
+              label="Category"
+              variant="outlined"
+              value={selectedCatLabel}
+              onChange={(event) => setSelectedCatLabel(event.target.value)}
+            />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "10px",
+                pt: 2,
+              }}
+            >
+              {" "}
+              <Button
+                color="primary"
+                variant="outlined"
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                Close
+              </Button>
+              <Button
+                color="primary"
+                variant="contained"
+                onClick={handleUpdate}
+              >
+                Update
+              </Button>
+            </Box>
+          </Box>
+        </Modal>
       </Container>
     </>
   );

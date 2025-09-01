@@ -20,6 +20,7 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import CardMedia from "@mui/material/CardMedia";
 import { API_URL } from "../utils/constants";
+import { getCategories } from "../utils/api_category";
 
 export default function Products() {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ export default function Products() {
   // to track which page the user is in
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState("all");
+  const [categories, setCategories] = useState([]);
 
   const [cart, setCart] = useState([]);
 
@@ -38,6 +40,10 @@ export default function Products() {
       setProducts(data);
     });
   }, [category, page]);
+
+  useEffect(() => {
+    getCategories().then((data) => setCategories(data));
+  }, []);
 
   const handleProductDelete = async (id) => {
     Swal.fire({
@@ -142,10 +148,9 @@ export default function Products() {
               }}
             >
               <MenuItem value="all">All</MenuItem>
-              <MenuItem value={"Accessories"}>Accessories</MenuItem>
-              <MenuItem value={"Games"}>Games</MenuItem>
-              <MenuItem value={"Consoles"}>Consoles</MenuItem>
-              <MenuItem value={"Subscriptions"}>Subscriptions</MenuItem>
+              {categories.map((cat) => (
+                <MenuItem value={cat._id}>{cat.label}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Box>
@@ -165,7 +170,10 @@ export default function Products() {
                     }
                   />
                   <CardContent sx={{ m: 0, p: 0 }}>
-                    <Typography component="div" sx={{ fontWeight: "bold" }}>
+                    <Typography
+                      component="div"
+                      sx={{ fontWeight: "bold", mt: 2 }}
+                    >
                       {product.name}
                     </Typography>
                     <Box
@@ -184,7 +192,7 @@ export default function Products() {
                       <Chip
                         variant="outlined"
                         color="warning"
-                        label={product.category}
+                        label={product.category ? product.category.label : ""}
                       />
                     </Box>
                     <Button

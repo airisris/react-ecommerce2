@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { uploadImage } from "../utils/api_image";
 import { API_URL } from "../utils/constants";
+import { getCategories } from "../utils/api_category";
 
 const ProductAdd = () => {
   const navigate = useNavigate();
@@ -25,6 +26,11 @@ const ProductAdd = () => {
   const [price, setPrice] = useState(0);
   const [category, setCategory] = useState("");
   const [image, setImage] = useState(null);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    getCategories().then((data) => setCategories(data));
+  }, []);
 
   const handleFormSubmit = async (event) => {
     // 1. check for error
@@ -108,10 +114,9 @@ const ProductAdd = () => {
                 setPage(1);
               }}
             >
-              <MenuItem value={"Accessories"}>Accessories</MenuItem>
-              <MenuItem value={"Games"}>Games</MenuItem>
-              <MenuItem value={"Consoles"}>Consoles</MenuItem>
-              <MenuItem value={"Subscriptions"}>Subscriptions</MenuItem>
+              {categories.map((cat) => (
+                <MenuItem value={cat._id}>{cat.label}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Box>
